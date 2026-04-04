@@ -13,7 +13,7 @@ Bootloader minimalista en ensamblador x86 que arranca en QEMU, imprime un mensaj
 | Asignatura  | Infraestructura para Ciencia de Datos (INFB6052)                                                                                              |
 | Semestre    | Primer Semestre 2026                                                                                                                          |
 | Profesor    | Dr. Ing. Michael Miranda Sandoval                                                                                                             |
-| Integrante  | Ignacio Ramírez ([@altairBASIC](https://github.com/altairBASIC))<br />Cristian Vergara (@Cristian-Vergara)<br />Francisco Provoste(@fprovoste0) |
+| Integrantes  | Ignacio Ramírez ([@altairBASIC](https://github.com/altairBASIC))<br />Cristian Vergara ([@Cristian-Vergara](https://github.com/Cristian-Vergara))<br />Francisco Provoste(@fprovoste0) |
 
 ---
 
