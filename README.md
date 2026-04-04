@@ -6,14 +6,14 @@ Bootloader minimalista en ensamblador x86 que arranca en QEMU, imprime un mensaj
 
 ## Contexto académico
 
-| Campo | Detalle |
-|---|---|
-| Universidad | Universidad Tecnológica Metropolitana (UTEM) |
-| Carrera | Ingeniería Civil en Ciencia de Datos |
-| Asignatura | Infraestructura para Ciencia de Datos (INFB6052) |
-| Semestre | Primer Semestre 2026 |
-| Profesor | Dr. Ing. Michael Miranda Sandoval |
-| Integrante | Ignacio Ramírez ([@altairBASIC](https://github.com/altairBASIC)) |
+| Campo       | Detalle                                                                                                                                       |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Universidad | Universidad Tecnológica Metropolitana (UTEM)                                                                                                 |
+| Carrera     | Ingeniería Civil en Ciencia de Datos                                                                                                         |
+| Asignatura  | Infraestructura para Ciencia de Datos (INFB6052)                                                                                              |
+| Semestre    | Primer Semestre 2026                                                                                                                          |
+| Profesor    | Dr. Ing. Michael Miranda Sandoval                                                                                                             |
+| Integrante  | Ignacio Ramírez ([@altairBASIC](https://github.com/altairBASIC))<br />Cristian Vergara (@Cristian-Vergara)<br />Francisco Provoste(@fprovoste0) |
 
 ---
 
@@ -31,16 +31,19 @@ Este proyecto implementa un sector de arranque (boot sector) de 512 bytes escrit
 ## Requisitos
 
 ### Ubuntu / Debian
+
 ```bash
 sudo apt update && sudo apt install -y nasm qemu-system-x86 make
 ```
 
 ### macOS (Homebrew)
+
 ```bash
 brew install nasm qemu make
 ```
 
 ### Windows (con Chocolatey)
+
 ```powershell
 choco install nasm qemu make
 ```
@@ -84,13 +87,13 @@ micro-os-boot/
 
 ## Comandos disponibles
 
-| Comando | Descripción |
-|---|---|
-| `make build` | Ensambla `src/boot.asm` → `build/boot.bin` |
-| `make run` | Ejecuta el binario en QEMU |
-| `make all` | Compila y ejecuta en un solo paso |
-| `make clean` | Elimina el binario compilado |
-| `make verify` | Muestra tamaño y firma 0xAA55 del binario |
+| Comando         | Descripción                                    |
+| --------------- | ----------------------------------------------- |
+| `make build`  | Ensambla `src/boot.asm` → `build/boot.bin` |
+| `make run`    | Ejecuta el binario en QEMU                      |
+| `make all`    | Compila y ejecuta en un solo paso               |
+| `make clean`  | Elimina el binario compilado                    |
+| `make verify` | Muestra tamaño y firma 0xAA55 del binario      |
 
 ---
 
