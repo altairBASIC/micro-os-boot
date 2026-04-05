@@ -113,8 +113,8 @@ imprimir:
 ; DATOS: cadenas de texto a imprimir
 ; Las cadenas terminan con 0 (byte nulo) para que la función sepa dónde parar
 ; =============================================================================
-msg1 db "MicroOS v1.0 - INFB6052", 0      ; Primera línea: identificación del SO y asignatura
-msg2 db "Boot exitoso! - Ignacio Ramirez/Cristian Vergara/Francisco Provoster", 0  ; Segunda línea: confirmación y autores
+msg1 db "MicroOS v1.0 - INFB6052", 0                                          ; Primera línea: identificación del SO y asignatura
+msg2 db "Boot exitoso! // I.Ramirez, C.Vergara, F.Provoste", 0                   ; Segunda línea: confirmación y autores
 
 ; =============================================================================
 ; RELLENO Y FIRMA DE ARRANQUE
