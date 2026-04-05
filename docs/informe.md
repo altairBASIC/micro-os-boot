@@ -5,7 +5,7 @@
 **Carrera:** Ingeniería Civil en Ciencia de Datos
 **Semestre:** Primer Semestre 2026
 **Profesor:** Dr. Ing. Michael Miranda Sandoval
-**Integrante:** Ignacio Ramírez
+**Integrantes:** Ignacio Ramírez, Cristian Vergara y Francisco Provoste
 **Repositorio:** [altairBASIC/micro-os-boot](https://github.com/altairBASIC/micro-os-boot)
 
 ---
@@ -14,7 +14,7 @@
 
 Esta actividad consistió en implementar un bootloader funcional en ensamblador x86 de 16 bits, capaz de arrancar en el emulador QEMU, limpiar la pantalla e imprimir mensajes con color utilizando las interrupciones del BIOS. El binario resultante ocupa exactamente 512 bytes e incluye la firma de arranque estándar `0xAA55`.
 
-El objetivo principal es comprender el proceso de arranque de un sistema x86 a nivel de hardware: desde el encendido del equipo hasta la ejecución del primer código de usuario. Este conocimiento constituye la base conceptual para entender cómo se construyen y gestionan las capas de software que sostienen la infraestructura de ciencia de datos moderna: sistemas operativos, hipervisores, contenedores y máquinas virtuales.
+El objetivo principal de esta actividad es comprender, desde una perspectiva técnica y sistémica, el proceso de arranque de un sistema computacional x86, abordando el flujo completo desde el código fuente hasta su ejecución en un entorno virtualizado. Esta experiencia permite observar de forma concreta la interacción entre hardware, software base y herramientas de construcción, elementos fundamentales en la infraestructura de sistemas modernos orientados a ciencia de datos.
 
 La actividad se enmarca en la unidad de infraestructura de bajo nivel del curso INFB6052, donde se estudian los fundamentos de la capa de hardware y virtualización sobre la que operan los sistemas de procesamiento de datos.
 
@@ -84,7 +84,9 @@ La firma `0xAA55` es una secuencia de bytes elegida históricamente por IBM. Alm
 
 ### 3.1 Flujo de trabajo
 
-El desarrollo siguió un flujo iterativo con control de versiones en cada etapa:
+El desarrollo siguió un flujo iterativo con control de versiones en cada etapa,
+este flujo constituye un pipeline reproducible que permite reconstruir el sistema desde cero,
+ garantizando consistencia entre entornos de desarrollo:
 
 1. Creación de la estructura del repositorio (directorio `src/`, `build/`, `docs/`)
 2. Implementación del bootloader en `src/boot.asm`
@@ -190,7 +192,12 @@ Boot exitoso! - Ignacio Ramirez
 
 El primer mensaje aparece en color cian (atributo `0x0B`) y el segundo en verde claro (atributo `0x0A`). El cursor queda estático después del segundo mensaje, confirmando que el CPU entró en el halt loop.
 
-Las capturas de pantalla se encuentran en `docs/capturas/`.
+
+![Ejecución del bootloader en QEMU mostrando el mensaje de arranque](capturas/qemu_boot.png)
+
+*Figura 1: Ejecución del bootloader en QEMU, mostrando el mensaje de inicio y validando el correcto funcionamiento del sistema.*
+
+La evidencia visual confirma que el sistema arranca correctamente en el entorno virtualizado, cumpliendo con los requisitos funcionales definidos en la actividad.
 
 ---
 
@@ -235,6 +242,10 @@ Los conceptos demostrados en este ejercicio aparecen en escala ampliada en entor
 - **CI/CD:** El `make build` manual se automatiza en pipelines de GitHub Actions, GitLab CI o Jenkins, que compilan, prueban y despliegan artefactos sin intervención humana.
 - **Imágenes base:** Del mismo modo que el bootloader es el punto de entrada para un SO, una imagen Docker base (e.g., `python:3.11-slim`) es el punto de entrada para un contenedor de procesamiento de datos.
 
+### 5.7 infraestructura como base invisible
+
+En este sentido, la infraestructura computacional puede entenderse como una capa invisible pero crítica que sostiene toda operación de procesamiento de datos. Este ejercicio evidencia que incluso los sistemas más complejos dependen de mecanismos fundamentales de arranque, ejecución y abstracción del hardware. Comprender estas bases permite no solo utilizar herramientas de alto nivel, sino también razonar sobre su funcionamiento interno, optimizar su uso y diagnosticar fallas en entornos productivos.
+
 ---
 
 ## 6. Conclusiones
@@ -244,6 +255,8 @@ Este ejercicio demostró que un bootloader funcional puede implementarse en poca
 El aprendizaje más valioso no está en los detalles sintácticos del ensamblador, sino en el modelo mental que ofrece: todo sistema de software, por sofisticado que sea, arranca con un paso uno. En ciencia de datos, ese paso uno es la infraestructura — el hardware, el sistema operativo, el runtime — que hace posible ejecutar el análisis. Entender qué ocurre antes de que Python importe NumPy permite diseñar sistemas más robustos, diagnosticar fallas en capas más bajas y tomar decisiones informadas sobre virtualización, contenedores y recursos de cómputo.
 
 La combinación de ensamblador NASM, emulación QEMU y automatización Make, aunque mínima, reproduce fielmente la lógica de toolchains industriales y aporta una base conceptual sólida para las materias avanzadas del plan de estudios.
+
+En consecuencia, esta actividad no solo cumple un objetivo técnico puntual, sino que establece un puente conceptual entre la programación de bajo nivel y las prácticas modernas de ingeniería de infraestructura, posicionando al estudiante en una comprensión integral del ecosistema computacional.
 
 ---
 

@@ -2,7 +2,7 @@
 ; boot.asm - Bootloader del Micro OS
 ; Actividad 1 - INFB6052 - Infraestructura para Ciencia de Datos
 ; Universidad Tecnológica Metropolitana (UTEM)
-; Autor: Ignacio Ramírez
+; Autores: Ignacio Ramírez, Cristian Vergara y Francisco Provoste
 ; =============================================================================
 
 BITS 16         ; Indicamos al ensamblador que el código es de 16 bits (modo real x86)
