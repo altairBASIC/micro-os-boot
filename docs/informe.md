@@ -193,7 +193,7 @@ Boot exitoso! - Ignacio Ramirez
 El primer mensaje aparece en color cian (atributo `0x0B`) y el segundo en verde claro (atributo `0x0A`). El cursor queda estático después del segundo mensaje, confirmando que el CPU entró en el halt loop.
 
 
-![Ejecución del bootloader en QEMU mostrando el mensaje de arranque](capturas/qemu_boot.png)
+![Ejecución del bootloader en QEMU mostrando el mensaje de arranque](capturas/qemu-boot.png)
 
 *Figura 1: Ejecución del bootloader en QEMU, mostrando el mensaje de inicio y validando el correcto funcionamiento del sistema.*
 
