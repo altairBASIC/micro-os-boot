@@ -23,7 +23,7 @@ Este proyecto implementa un sector de arranque (boot sector) de 512 bytes escrit
 
 1. Limpia la pantalla usando la interrupción BIOS `int 0x10`
 2. Imprime `MicroOS v1.0 - INFB6052` en color cian
-3. Imprime `Boot exitoso! - Ignacio Ramirez` en color verde
+3. Imprime `Boot exitoso!` en color verde junto a los nombres y un ASCII art
 4. Detiene el procesador con `cli + hlt`
 
 ---
