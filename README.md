@@ -97,6 +97,16 @@ micro-os-boot/
 | `make clean`  | Elimina el binario compilado                    |
 | `make verify` | Muestra tamaño y firma 0xAA55 del binario      |
 
+### Verificación manual en Windows
+
+debido a que el comando `make verify` utiliza herramientas propias de linux,
+en sistemas windows se puede verificar manualmente en consola 
+
+| Comando                        | Descripción                                     |
+| ------------------------------ | ----------------------------------------------- |
+| `dir build\boot.bin`           | Verifica el tamaño del binario                  |
+| `Format-Hex build\boot.bin`    | Verifica la firma 0xAA55 al final del binario   |
+
 ---
 
 ## Explicación técnica
