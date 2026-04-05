@@ -34,28 +34,27 @@ limpiar_pantalla:
     int 0x10            ; Llamada a la interrupción BIOS
 
 ; =============================================================================
-; IMPRIMIR PRIMERA LÍNEA: "MicroOS v1.0 - INFB6052"
-; Usamos la función 0x0E (teletype output) que imprime un carácter con color
-; e imprime carácter por carácter iterando sobre la cadena hasta encontrar 0
+; IMPRIMIR PRIMERA LÍNEA: "MicroOS v1.0 - INFB6052" en color CIAN
+; Usamos la función 0x09 (write char with attribute) que SÍ aplica colores,
+; combinada con 0x02 (set cursor) para avanzar manualmente el cursor.
+; La función 0x0E (teletype) no siempre respeta BL en todos los BIOS/emuladores.
 ; =============================================================================
     mov si, msg1        ; SI apunta al inicio de la primera cadena de texto
-    mov bl, 0x0B        ; Color: texto cian claro (0x0B) sobre fondo negro (atributo de color)
+    mov bl, 0x0B        ; Color: texto cian claro (0x0B) sobre fondo negro
     call imprimir       ; Llamamos a la función de impresión
 
 ; =============================================================================
 ; IMPRIMIR SALTO DE LÍNEA entre los dos mensajes
-; El carácter 0x0D mueve el cursor al inicio de la línea (Carriage Return)
-; El carácter 0x0A baja el cursor una línea (Line Feed)
-; Ambos juntos equivalen a un salto de línea estándar
+; Movemos el cursor a la fila 1, columna 0
 ; =============================================================================
-    mov ah, 0x0E        ; Función teletype de int 0x10
-    mov al, 0x0D        ; Carácter: Carriage Return (volver al inicio de línea)
-    int 0x10
-    mov al, 0x0A        ; Carácter: Line Feed (bajar una línea)
+    mov ah, 0x02        ; Función set cursor position
+    mov bh, 0x00        ; Página de video 0
+    mov dh, 0x01        ; Fila 1 (segunda fila)
+    mov dl, 0x00        ; Columna 0
     int 0x10
 
 ; =============================================================================
-; IMPRIMIR SEGUNDA LÍNEA: "Boot exitoso! - Ignacio Ramirez"
+; IMPRIMIR SEGUNDA LÍNEA: "Boot exitoso! - Ignacio Ramirez" en color VERDE
 ; Mismo mecanismo que la primera línea, con diferente color para distinguirlas
 ; =============================================================================
     mov si, msg2        ; SI apunta al inicio de la segunda cadena de texto
@@ -76,23 +75,39 @@ fin:
 
 ; =============================================================================
 ; FUNCIÓN: imprimir
-; Imprime una cadena terminada en 0 (null-terminated) usando int 0x10 / 0x0E
+; Imprime una cadena terminada en 0 (null-terminated) usando int 0x10 / 0x09
+; La función 0x09 escribe un carácter con atributo de color en la posición
+; actual del cursor, pero NO avanza el cursor automáticamente. Por eso,
+; después de cada carácter, usamos 0x02 para mover el cursor manualmente.
+;
 ; Entrada:
 ;   SI = dirección de inicio de la cadena
-;   BL = atributo de color del texto
-; Modifica: AX, AL, SI
+;   BL = atributo de color del texto (bits 3-0 = color texto, bits 7-4 = color fondo)
+; Modifica: AX, CX, SI, DL
 ; =============================================================================
 imprimir:
-    mov ah, 0x0E        ; Función 0x0E: teletype output (imprime carácter con avance de cursor)
+    mov dl, 0x00        ; Inicializar columna del cursor en 0
 .bucle:
-    lodsb               ; Carga el byte apuntado por SI en AL, luego incrementa SI automáticamente
+    lodsb               ; Carga el byte apuntado por SI en AL, luego incrementa SI
     cmp al, 0           ; Compara el carácter leído con 0 (fin de cadena)
-    je  .fin            ; Si es 0, la cadena terminó: saltar al final de la función
+    je  .fin            ; Si es 0, la cadena terminó: saltar al final
+
+    ; --- Escribir carácter con color usando función 0x09 ---
+    mov ah, 0x09        ; Función 0x09: escribir carácter con atributo de color
     mov bh, 0x00        ; Página de video: 0 (pantalla activa)
+    mov cx, 1           ; Número de veces a repetir el carácter: 1
     int 0x10            ; Imprimir el carácter en AL con color en BL
+
+    ; --- Avanzar el cursor una posición a la derecha ---
+    inc dl              ; Incrementar columna
+    mov ah, 0x02        ; Función 0x02: establecer posición del cursor
+    mov bh, 0x00        ; Página de video: 0
+    ; DH ya contiene la fila correcta (preservada del último set cursor)
+    int 0x10            ; Mover el cursor
+
     jmp .bucle          ; Volver a leer el siguiente carácter
 .fin:
-    ret                 ; Retornar al llamador (pop dirección de retorno del stack)
+    ret                 ; Retornar al llamador
 
 ; =============================================================================
 ; DATOS: cadenas de texto a imprimir
