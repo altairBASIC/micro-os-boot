@@ -16,116 +16,124 @@ ORG 0x7C00      ; El BIOS siempre carga el sector de arranque en la dirección 0
 limpiar_pantalla:
     mov ah, 0x06        ; Función 0x06 de int 0x10: desplazar pantalla hacia arriba
     mov al, 0x00        ; Número de líneas a desplazar = 0 significa limpiar toda la región
-    mov bh, 0x07        ; Atributo de relleno: texto gris claro sobre fondo negro (color por defecto)
-    mov ch, 0x00        ; Fila superior de la región a limpiar: fila 0
-    mov cl, 0x00        ; Columna izquierda de la región: columna 0
-    mov dh, 0x18        ; Fila inferior de la región: fila 24 (pantalla de 25 filas, base 0)
-    mov dl, 0x4F        ; Columna derecha de la región: columna 79 (pantalla de 80 columnas, base 0)
+    mov bh, 0x07        ; Atributo de relleno: texto gris claro sobre fondo negro
+    mov ch, 0x00        ; Fila superior: fila 0
+    mov cl, 0x00        ; Columna izquierda: columna 0
+    mov dh, 0x18        ; Fila inferior: fila 24
+    mov dl, 0x4F        ; Columna derecha: columna 79
     int 0x10            ; Llamada a la interrupción BIOS de video
 
 ; =============================================================================
-; POSICIONAR EL CURSOR AL INICIO (fila 0, columna 0)
-; Sin esto, el cursor quedaría en alguna posición indefinida después del scroll
+; RECUADRO ASCII ART - Colores institucionales UTEM (verde, blanco, azul)
+; Caracteres CP437: ╔(0xC9) ═(0xCD) ╗(0xBB) ║(0xBA) ╚(0xC8) ╝(0xBC)
 ; =============================================================================
-    mov ah, 0x02        ; Función 0x02 de int 0x10: establecer posición del cursor
-    mov bh, 0x00        ; Página de video: página 0 (la visible por defecto)
-    mov dh, 0x00        ; Fila destino: 0 (primera fila)
-    mov dl, 0x00        ; Columna destino: 0 (primera columna)
-    int 0x10            ; Llamada a la interrupción BIOS
 
-; =============================================================================
-; IMPRIMIR PRIMERA LÍNEA: "MicroOS v1.0 - INFB6052" en color CIAN
-; Usamos la función 0x09 (write char with attribute) que SÍ aplica colores,
-; combinada con 0x02 (set cursor) para avanzar manualmente el cursor.
-; La función 0x0E (teletype) no siempre respeta BL en todos los BIOS/emuladores.
-; =============================================================================
-    mov si, msg1        ; SI apunta al inicio de la primera cadena de texto
-    mov bl, 0x0B        ; Color: texto cian claro (0x0B) sobre fondo negro
-    call imprimir       ; Llamamos a la función de impresión
-
-; =============================================================================
-; IMPRIMIR SALTO DE LÍNEA entre los dos mensajes
-; Movemos el cursor a la fila 1, columna 0
-; =============================================================================
-    mov ah, 0x02        ; Función set cursor position
-    mov bh, 0x00        ; Página de video 0
-    mov dh, 0x01        ; Fila 1 (segunda fila)
+; --- Línea superior del recuadro: ╔══════════════╗ en VERDE ---
+    mov ah, 0x02        ; Set cursor position
+    mov bh, 0x00        ; Página 0
+    mov dh, 0x00        ; Fila 0
     mov dl, 0x00        ; Columna 0
     int 0x10
+    mov si, box_top     ; Cadena del borde superior
+    mov bl, 0x0A        ; Color: verde claro (institucional)
+    call imprimir
+
+; --- Línea media del recuadro: ║  MicroOS!  ║ en BLANCO ---
+    mov ah, 0x02
+    mov bh, 0x00
+    mov dh, 0x01        ; Fila 1
+    mov dl, 0x00
+    int 0x10
+    mov si, box_mid     ; Cadena del texto central
+    mov bl, 0x0F        ; Color: blanco brillante (institucional)
+    call imprimir
+
+; --- Línea inferior del recuadro: ╚══════════════╝ en AZUL ---
+    mov ah, 0x02
+    mov bh, 0x00
+    mov dh, 0x02        ; Fila 2
+    mov dl, 0x00
+    int 0x10
+    mov si, box_bot     ; Cadena del borde inferior
+    mov bl, 0x09        ; Color: azul claro (institucional)
+    call imprimir
 
 ; =============================================================================
-; IMPRIMIR SEGUNDA LÍNEA: "Boot exitoso! - Ignacio Ramirez" en color VERDE
-; Mismo mecanismo que la primera línea, con diferente color para distinguirlas
+; IMPRIMIR LÍNEA: "MicroOS v1.0 - INFB6052" en CIAN (fila 4)
 ; =============================================================================
-    mov si, msg2        ; SI apunta al inicio de la segunda cadena de texto
-    mov bl, 0x0A        ; Color: texto verde claro (0x0A) sobre fondo negro
-    call imprimir       ; Llamamos a la función de impresión
+    mov ah, 0x02
+    mov bh, 0x00
+    mov dh, 0x04        ; Fila 4 (dejando fila 3 vacía como separador)
+    mov dl, 0x00
+    int 0x10
+    mov si, msg1        ; Primera cadena de texto
+    mov bl, 0x0B        ; Color: cian claro
+    call imprimir
+
+; =============================================================================
+; IMPRIMIR LÍNEA: "Boot exitoso! // ..." en VERDE (fila 5)
+; =============================================================================
+    mov ah, 0x02
+    mov bh, 0x00
+    mov dh, 0x05        ; Fila 5
+    mov dl, 0x00
+    int 0x10
+    mov si, msg2        ; Segunda cadena de texto
+    mov bl, 0x0A        ; Color: verde claro
+    call imprimir
 
 ; =============================================================================
 ; HALT LOOP - Detener el procesador
-; Una vez impresos los mensajes, el bootloader no tiene más trabajo que hacer.
-; cli: deshabilita las interrupciones para que el CPU no sea despertado
-; hlt: suspende el procesador hasta la próxima interrupción (que nunca llegará)
-; El loop 'fin' atrapa cualquier eventual interrupción no maskeable (NMI)
 ; =============================================================================
 fin:
     cli                 ; Deshabilitar interrupciones (Clear Interrupt Flag)
     hlt                 ; Detener el procesador (Halt)
-    jmp fin             ; Bucle de seguridad: si algo despertara al CPU, vuelve al hlt
+    jmp fin             ; Bucle de seguridad
 
 ; =============================================================================
 ; FUNCIÓN: imprimir
-; Imprime una cadena terminada en 0 (null-terminated) usando int 0x10 / 0x09
-; La función 0x09 escribe un carácter con atributo de color en la posición
-; actual del cursor, pero NO avanza el cursor automáticamente. Por eso,
-; después de cada carácter, usamos 0x02 para mover el cursor manualmente.
-;
+; Imprime una cadena terminada en 0 usando int 0x10 / AH=0x09 (con color)
 ; Entrada:
 ;   SI = dirección de inicio de la cadena
-;   BL = atributo de color del texto (bits 3-0 = color texto, bits 7-4 = color fondo)
+;   BL = atributo de color del texto
 ; Modifica: AX, CX, SI, DL
 ; =============================================================================
 imprimir:
     mov dl, 0x00        ; Inicializar columna del cursor en 0
 .bucle:
-    lodsb               ; Carga el byte apuntado por SI en AL, luego incrementa SI
-    cmp al, 0           ; Compara el carácter leído con 0 (fin de cadena)
-    je  .fin            ; Si es 0, la cadena terminó: saltar al final
+    lodsb               ; Carga byte de [SI] en AL, incrementa SI
+    cmp al, 0           ; ¿Fin de cadena?
+    je  .fin            ; Si es 0, retornar
 
-    ; --- Escribir carácter con color usando función 0x09 ---
-    mov ah, 0x09        ; Función 0x09: escribir carácter con atributo de color
-    mov bh, 0x00        ; Página de video: 0 (pantalla activa)
-    mov cx, 1           ; Número de veces a repetir el carácter: 1
-    int 0x10            ; Imprimir el carácter en AL con color en BL
-
-    ; --- Avanzar el cursor una posición a la derecha ---
-    inc dl              ; Incrementar columna
-    mov ah, 0x02        ; Función 0x02: establecer posición del cursor
+    mov ah, 0x09        ; Función 0x09: escribir carácter con atributo
     mov bh, 0x00        ; Página de video: 0
-    ; DH ya contiene la fila correcta (preservada del último set cursor)
-    int 0x10            ; Mover el cursor
+    mov cx, 1           ; Repetir 1 vez
+    int 0x10            ; Imprimir carácter con color
 
-    jmp .bucle          ; Volver a leer el siguiente carácter
+    inc dl              ; Avanzar columna
+    mov ah, 0x02        ; Función 0x02: mover cursor
+    mov bh, 0x00        ; Página 0
+    int 0x10            ; Actualizar posición del cursor
+
+    jmp .bucle
 .fin:
-    ret                 ; Retornar al llamador
+    ret
 
 ; =============================================================================
-; DATOS: cadenas de texto a imprimir
-; Las cadenas terminan con 0 (byte nulo) para que la función sepa dónde parar
+; DATOS: Recuadro ASCII art con caracteres CP437
 ; =============================================================================
-msg1 db "MicroOS v1.0 - INFB6052", 0                                          ; Primera línea: identificación del SO y asignatura
-msg2 db "Boot exitoso! // I.Ramirez, C.Vergara, F.Provoste", 0                   ; Segunda línea: confirmación y autores
+box_top db 0xC9, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xBB, 0
+box_mid db 0xBA, "  MicroOS!   ", 0xBA, 0
+box_bot db 0xC8, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xCD, 0xBC, 0
+
+; =============================================================================
+; DATOS: Mensajes de texto
+; =============================================================================
+msg1 db "MicroOS v1.0 - INFB6052", 0
+msg2 db "Boot exitoso! // I.Ramirez, C.Vergara, F.Provoste", 0
 
 ; =============================================================================
 ; RELLENO Y FIRMA DE ARRANQUE
-; El BIOS espera que el sector de arranque ocupe exactamente 512 bytes.
-; 'times 510-($-$$) db 0' rellena con ceros desde la posición actual hasta el byte 509.
-;   $  = dirección actual en el segmento
-;   $$ = dirección de inicio del segmento (0x7C00)
-;   $-$$ = número de bytes usados hasta ahora
-;   510-($-$$) = bytes restantes para llegar al byte 510 (posición de la firma)
-; Los últimos 2 bytes deben ser 0x55 y 0xAA (en ese orden en memoria = 0xAA55 en little-endian)
-; El BIOS verifica esta firma para identificar que el sector es arrancable
 ; =============================================================================
 times 510-($-$$) db 0   ; Rellena con ceros hasta el byte 510
-dw 0xAA55               ; Firma mágica de sector de arranque (bytes 511-512)
+dw 0xAA55               ; Firma mágica de sector de arranque
